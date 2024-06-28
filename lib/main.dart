@@ -7,7 +7,7 @@ void main() {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({Key? key}) : super(key: key);
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,13 +15,13 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('PDF Preview Example'),
+          title: const Text('PDF Preview Example'),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(
+            const Center(
               child: Text('Hello World!'),
             ),
             ElevatedButton(
@@ -31,7 +31,7 @@ class MainApp extends StatelessWidget {
                 await Printing.layoutPdf(
                     onLayout: (format) => _pdf.generatePdf(format));
               },
-              child: Text('Generate PDF and Preview'),
+              child: const Text('Generate PDF and Preview'),
             ),
           ],
         ),
