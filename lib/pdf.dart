@@ -1,16 +1,63 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:darya/services/datetime.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:http/http.dart' as http;
 
-class MyPdf {
-  final pdf = pw.Document();
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
+// import 'package:intl/intl.dart';
 
-  Future<Uint8List> generatePdf(PdfPageFormat format) async {
+class MyPdf extends ConsumerStatefulWidget {
+  final dynamic data;
+  const MyPdf({
+    super.key,
+    this.data,
+  });
+  @override
+  ConsumerState<MyPdf> createState() => _MyPdfState();
+}
+
+class _MyPdfState extends ConsumerState<MyPdf> {
+  dynamic seaExperienceData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      // Fetch documents from the "seaExperiences" subcollection
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('/applications/${widget.data['id']}/seaExperiences')
+          .get();
+
+      // Extract the data from the query snapshot
+      List<Map<String, dynamic>> seaExperienceData = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      // Print the fetched data
+      print('seaExperience: $seaExperienceData');
+      // print('length: ${seaExperienceData.length}');
+    } catch (e) {
+      print('Failed to load data: $e');
+    }
+  }
+
+  Future<Uint8List> generatePdf(
+      PdfPageFormat format, WidgetRef ref, data) async {
     final pdf = pw.Document();
-    final ByteData imageData =
-        await rootBundle.load('assets/male-passport-size-2.jpg');
-    final Uint8List imageUint8List = imageData.buffer.asUint8List();
+    // final ByteData imageData =
+    //     await rootBundle.load('assets/images/profile_icon.jpeg');
+    final response = await http.get(Uri.parse(data['photoUrl'] ?? ''));
+    Uint8List? imagedynamic = response.bodyBytes;
+    // final Uint8List imagedefault = imageData.buffer.asUint8List();
 
     pdf.addPage(
       pw.MultiPage(
@@ -24,7 +71,7 @@ class MyPdf {
                 pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 8),
                     child: pw.Text(
-                      'John Doe',
+                      '${data['firstName'] ?? ''} ${data['middleName'] ?? ''} ${data['lastName'] ?? ''}',
                       style: pw.TextStyle(
                         fontSize: 16,
                         fontWeight: pw.FontWeight.bold,
@@ -34,7 +81,7 @@ class MyPdf {
                 pw.SizedBox(height: 4.0),
                 pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 8),
-                    child: pw.Text('Electro-Technical Officer',
+                    child: pw.Text('${data['rank']}',
                         style: pw.TextStyle(
                           fontSize: 12,
                           fontWeight: pw.FontWeight.bold,
@@ -42,7 +89,8 @@ class MyPdf {
                 pw.SizedBox(height: 4.0),
                 pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 8),
-                    child: pw.Text('+91 1234567890 | johndoe@gmail.com',
+                    child: pw.Text(
+                        '+91 ${data['primaryPhone'] ?? ''} | ${data['primaryEmail'] ?? ''}',
                         style: const pw.TextStyle(fontSize: 12))),
               ],
             ),
@@ -50,7 +98,7 @@ class MyPdf {
             pw.Container(
               padding: const pw.EdgeInsets.all(4),
               width: 64,
-              child: pw.Image(pw.MemoryImage(imageUint8List)),
+              child: pw.Image(pw.MemoryImage(imagedynamic)),
             ),
           ]),
 
@@ -78,7 +126,7 @@ class MyPdf {
                   2: const pw.FlexColumnWidth(),
                   3: const pw.FlexColumnWidth(),
                 },
-                children: [
+                children: <pw.TableRow>[
                   pw.TableRow(
                     children: [
                       pw.Padding(
@@ -93,7 +141,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'John',
+                          '${data['firstName'] ?? ''}',
                           style: const pw.TextStyle(
                             fontSize: 10,
                           ),
@@ -113,7 +161,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'M.',
+                          '${data['middleName'] ?? ''}',
                           style: const pw.TextStyle(
                             fontSize: 10,
                           ),
@@ -127,7 +175,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Surname',
+                          'Last Name',
                           style: pw.TextStyle(
                               fontSize: 10, fontWeight: pw.FontWeight.bold),
                         ),
@@ -135,7 +183,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Doe',
+                          '${data['lastName'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -150,7 +198,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Jan 1, 1980',
+                          '${convertTimestamp(data['dob']) ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -169,7 +217,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'City',
+                          '${data['pob'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -184,7 +232,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Indian',
+                          '${data['nationality'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -203,7 +251,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Male',
+                          '${data['gender'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -218,7 +266,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Single',
+                          '${data['maritalStatus'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -228,7 +276,7 @@ class MyPdf {
               )),
           pw.SizedBox(height: 20.0),
           pw.Padding(
-              padding:  const pw.EdgeInsets.symmetric(horizontal: 8),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8),
               child: pw.Text(
                 'Crew Details',
                 style: const pw.TextStyle(
@@ -299,7 +347,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          '123456',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -314,7 +362,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Applied',
+                          '${data['status'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -333,7 +381,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Yes',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -348,7 +396,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Vessel Name',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -367,7 +415,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Office',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -382,7 +430,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Fleet Name',
+                          ' ',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -401,7 +449,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          '10 years',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -416,7 +464,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Pool Name',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -435,7 +483,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Captain',
+                          '${data['rank'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -450,7 +498,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Licence Number',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -469,7 +517,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Type',
+                          '${data['type'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -484,7 +532,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Company Name',
+                          '',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -502,7 +550,7 @@ class MyPdf {
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(4),
                       child: pw.Text(
-                        'Book Number',
+                        '',
                         style: const pw.TextStyle(fontSize: 10),
                       ),
                     ),
@@ -534,7 +582,7 @@ class MyPdf {
           // //   ],
           // // ),
           pw.Padding(
-              padding:  const pw.EdgeInsets.symmetric(horizontal: 8),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8),
               child: pw.Text(
                 'Address Details',
                 style: const pw.TextStyle(color: PdfColor.fromInt(0xff0161a4)),
@@ -591,7 +639,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Vathiaparambathu House, North Mazhuvannoor P.O',
+                          '${data['presentAddress']['addressLine'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -606,7 +654,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Ernakulam',
+                          '${data['presentAddress']['city'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -625,7 +673,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Kerala',
+                          '${data['presentAddress']['state'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -640,7 +688,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          '686669',
+                          '${data['presentAddress']['zip'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -659,7 +707,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'India',
+                          '${data['presentAddress']['country'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -727,7 +775,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Z7394884',
+                          '${data['passportNumber'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -742,7 +790,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Govt Of India',
+                          '${data['passportIssuingAuthority'] ?? ''}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -761,7 +809,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Jan 1, 2010',
+                          '${convertTimestamp(data['passportIssue'])}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -776,7 +824,7 @@ class MyPdf {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
                         child: pw.Text(
-                          'Jan 1, 2030',
+                          '${convertTimestamp(data['passportExpiry'])}',
                           style: const pw.TextStyle(fontSize: 10),
                         ),
                       ),
@@ -787,71 +835,148 @@ class MyPdf {
 
           pw.SizedBox(height: 20.0),
 
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(4),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Padding(padding: const pw.EdgeInsets.symmetric(horizontal: 4),child:pw.Text(
-                    'Experience',
-                    style: const pw.TextStyle(
-                      color: PdfColor.fromInt(0xff0161a4),
-                    ),
-                  )),
-                  pw.SizedBox(height: 8.0),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.only(left: 4),
-                    child: pw.Text(
-                      'Chief Engineer',
-                      style: pw.TextStyle(
-                        fontSize: 10,
-                        fontWeight: pw.FontWeight.bold,
+          pw.Column(
+            children: List.generate(seaExperienceData.length as int, (index) {
+              print('sea experience column called');
+              return pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(horizontal: 4),
+                      child: pw.Text(
+                        'Experience',
+                        style: const pw.TextStyle(
+                          color: PdfColor.fromInt(0xff0161a4),
+                        ),
                       ),
                     ),
-                  ),
-                  pw.SizedBox(height: 1.5),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.only(left: 4),
-                    child: pw.Text(
-                      'MV Ocean Explorer (IMO123456)',
-                      style: const pw.TextStyle(
-                        fontSize: 10,
+                    pw.SizedBox(height: 8.0),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 4),
+                      child: pw.Text(
+                        'rank',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.SizedBox(height: 1.5),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.only(left: 4),
-                    child: pw.Text(
-                      'January 2018 - December 2020 (15 months)',
-                      style: const pw.TextStyle(
-                        fontSize: 10,
+                    pw.SizedBox(height: 1.5),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 4),
+                      child: pw.Text(
+                        'MV Ocean Explorer (IMO123456)',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.SizedBox(height: 1.5),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.only(left: 4),
-                    child: pw.Text(
-                      'Oceanic Shipping Ltd. - New Delhi, India',
-                      style: const pw.TextStyle(
-                        fontSize: 10,
+                    pw.SizedBox(height: 1.5),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 4),
+                      child: pw.Text(
+                        'January 2018 - December 2020 (15 months)',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.SizedBox(height: 16.0),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.only(left: 4),
-                    child: pw.Text(
-                      'Oversaw the operation and maintenance of the MV Ocean Explorer, a vessel with DWT of 10,000 tons, GT of 15,000 tons, and an engine output of 5,000 HP. Managed compliance, crew, and preventative maintenance, enhancing operational efficiency.',
-                      style: const pw.TextStyle(
-                        fontSize: 10,
-                        lineSpacing: 1.5, // Adjust line height here
+                    pw.SizedBox(height: 1.5),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 4),
+                      child: pw.Text(
+                        'Oceanic Shipping Ltd. - New Delhi, India',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              )),
+                    pw.SizedBox(height: 16.0),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 4),
+                      child: pw.Text(
+                        'Oversaw the operation and maintenance of the MV Ocean Explorer, a vessel with DWT of 10,000 tons, GT of 15,000 tons, and an engine output of 5,000 HP. Managed compliance, crew, and preventative maintenance, enhancing operational efficiency.',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                          lineSpacing: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+
+          // pw.Padding(
+          //     padding: const pw.EdgeInsets.all(4),
+          //     child: pw.Column(
+          //       crossAxisAlignment: pw.CrossAxisAlignment.start,
+          //       children: [
+          //         pw.Padding(
+          //             padding: const pw.EdgeInsets.symmetric(horizontal: 4),
+          //             child: pw.Text(
+          //               'Experience',
+          //               style: const pw.TextStyle(
+          //                 color: PdfColor.fromInt(0xff0161a4),
+          //               ),
+          //             )),
+          //         pw.SizedBox(height: 8.0),
+          //         pw.Padding(
+          //           padding: const pw.EdgeInsets.only(left: 4),
+          //           child: pw.Text(
+          //             'Chief Engineer',
+          //             style: pw.TextStyle(
+          //               fontSize: 10,
+          //               fontWeight: pw.FontWeight.bold,
+          //             ),
+          //           ),
+          //         ),
+          //         pw.SizedBox(height: 1.5),
+          //         pw.Padding(
+          //           padding: const pw.EdgeInsets.only(left: 4),
+          //           child: pw.Text(
+          //             'MV Ocean Explorer (IMO123456)',
+          //             style: const pw.TextStyle(
+          //               fontSize: 10,
+          //             ),
+          //           ),
+          //         ),
+          //         pw.SizedBox(height: 1.5),
+          //         pw.Padding(
+          //           padding: const pw.EdgeInsets.only(left: 4),
+          //           child: pw.Text(
+          //             'January 2018 - December 2020 (15 months)',
+          //             style: const pw.TextStyle(
+          //               fontSize: 10,
+          //             ),
+          //           ),
+          //         ),
+          //         pw.SizedBox(height: 1.5),
+          //         pw.Padding(
+          //           padding: const pw.EdgeInsets.only(left: 4),
+          //           child: pw.Text(
+          //             'Oceanic Shipping Ltd. - New Delhi, India',
+          //             style: const pw.TextStyle(
+          //               fontSize: 10,
+          //             ),
+          //           ),
+          //         ),
+          //         pw.SizedBox(height: 16.0),
+          //         pw.Padding(
+          //           padding: const pw.EdgeInsets.only(left: 4),
+          //           child: pw.Text(
+          //             'Oversaw the operation and maintenance of the MV Ocean Explorer, a vessel with DWT of 10,000 tons, GT of 15,000 tons, and an engine output of 5,000 HP. Managed compliance, crew, and preventative maintenance, enhancing operational efficiency.',
+          //             style: const pw.TextStyle(
+          //               fontSize: 10,
+          //               lineSpacing: 1.5, // Adjust line height here
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     )),
           pw.SizedBox(height: 20.0),
           pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 8),
@@ -1482,5 +1607,15 @@ class MyPdf {
       ),
     );
     return pdf.save();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Profile'),
+        ),
+        body: PdfPreview(
+            build: (format) => generatePdf(format, ref, widget.data)));
   }
 }
