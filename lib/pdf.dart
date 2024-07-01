@@ -510,18 +510,6 @@ class MyPdf {
                 ],
               )),
           pw.SizedBox(height: 20.0),
-          // pw.Align(
-          //   alignment: pw.Alignment.centerLeft,
-          //   child: pw.Text(
-          //     'Contact Details',
-          //     style: pw.TextStyle(
-          //         fontSize: 12,
-          //         fontWeight: pw.FontWeight.bold,
-          //         color: const PdfColor.fromInt(0xff0161a4)),
-          //     textAlign: pw.TextAlign.left,
-          //   ),
-          // ),
-
           // // pw.TableHelper.fromTextArray(
           // //   context: context,
           // //   headerCount: 0,
@@ -545,103 +533,6 @@ class MyPdf {
           // //     ],
           // //   ],
           // // ),
-          // pw.Container(
-          //     decoration: pw.BoxDecoration(
-          //         // border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
-          //         // borderRadius:
-          //         //     const pw.BorderRadius.all(pw.Radius.circular(5)),
-          //         ),
-          //     child: pw.Table(
-          //       border: pw.TableBorder.symmetric(
-          //         inside: pw.BorderSide.none,
-          //         outside: pw.BorderSide.none,
-          //       ),
-          //       columnWidths: {
-          //         0: const pw.FlexColumnWidth(),
-          //         1: const pw.FlexColumnWidth(),
-          //         2: const pw.FlexColumnWidth(),
-          //         3: const pw.FlexColumnWidth(),
-          //       },
-          //       children: [
-          //         pw.TableRow(
-          //           children: [
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Phone',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 '9876543210',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Alternate Phone',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 '9876543210',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //         pw.TableRow(
-          //           children: [
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Email',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'johndoe@gmail.com',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Alternate Email',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'johndoe@gmail.com',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     )),
-          // pw.SizedBox(height: 16.0),
           pw.Padding(
               padding:  const pw.EdgeInsets.symmetric(horizontal: 8),
               child: pw.Text(
