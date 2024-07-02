@@ -11,18 +11,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 // import 'package:intl/intl.dart';
 
-class MyPdf extends ConsumerStatefulWidget {
+class CV extends ConsumerStatefulWidget {
   final dynamic data;
-  const MyPdf({
+  const CV({
     super.key,
     this.data,
   });
   @override
-  ConsumerState<MyPdf> createState() => _MyPdfState();
+  ConsumerState<CV> createState() => _CVState();
 }
 
-class _MyPdfState extends ConsumerState<MyPdf> {
-  dynamic seaExperienceData = {};
+class _CVState extends ConsumerState<CV> {
+  List<Map<String, dynamic>> seaExperienceData = [];
+  int seaExpLength = 0;
 
   @override
   void initState() {
@@ -38,12 +39,16 @@ class _MyPdfState extends ConsumerState<MyPdf> {
           .get();
 
       // Extract the data from the query snapshot
-      List<Map<String, dynamic>> seaExperienceData = querySnapshot.docs
+      seaExperienceData = querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
 
       // Print the fetched data
-      print('seaExperience: $seaExperienceData');
+      // print('seaExperience: $seaExperienceData');
+      setState(() {
+        seaExpLength = seaExperienceData.length;
+        print('length: $seaExpLength');
+      });
       // print('length: ${seaExperienceData.length}');
     } catch (e) {
       print('Failed to load data: $e');
@@ -58,6 +63,77 @@ class _MyPdfState extends ConsumerState<MyPdf> {
     final response = await http.get(Uri.parse(data['photoUrl'] ?? ''));
     Uint8List? imagedynamic = response.bodyBytes;
     // final Uint8List imagedefault = imageData.buffer.asUint8List();
+    List<pw.TableRow> tableRows = List.generate(seaExpLength, (index) {
+      final doc = seaExperienceData[index];
+
+      return pw.TableRow(
+        children: [
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${doc['employer'] ?? ''}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${doc['rank'] ?? ''}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${doc['vesselName'] ?? ''}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${doc['imo'] ?? ''}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${doc['vesselType'] ?? ''}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${convertTimestamp(doc['from'] ?? '')}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              '${convertTimestamp(doc['to'] ?? '')}',
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
 
     pdf.addPage(
       pw.MultiPage(
@@ -558,18 +634,6 @@ class _MyPdfState extends ConsumerState<MyPdf> {
                 ],
               )),
           pw.SizedBox(height: 20.0),
-          // pw.Align(
-          //   alignment: pw.Alignment.centerLeft,
-          //   child: pw.Text(
-          //     'Contact Details',
-          //     style: pw.TextStyle(
-          //         fontSize: 12,
-          //         fontWeight: pw.FontWeight.bold,
-          //         color: const PdfColor.fromInt(0xff0161a4)),
-          //     textAlign: pw.TextAlign.left,
-          //   ),
-          // ),
-
           // // pw.TableHelper.fromTextArray(
           // //   context: context,
           // //   headerCount: 0,
@@ -593,103 +657,6 @@ class _MyPdfState extends ConsumerState<MyPdf> {
           // //     ],
           // //   ],
           // // ),
-          // pw.Container(
-          //     decoration: pw.BoxDecoration(
-          //         // border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
-          //         // borderRadius:
-          //         //     const pw.BorderRadius.all(pw.Radius.circular(5)),
-          //         ),
-          //     child: pw.Table(
-          //       border: pw.TableBorder.symmetric(
-          //         inside: pw.BorderSide.none,
-          //         outside: pw.BorderSide.none,
-          //       ),
-          //       columnWidths: {
-          //         0: const pw.FlexColumnWidth(),
-          //         1: const pw.FlexColumnWidth(),
-          //         2: const pw.FlexColumnWidth(),
-          //         3: const pw.FlexColumnWidth(),
-          //       },
-          //       children: [
-          //         pw.TableRow(
-          //           children: [
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Phone',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 '9876543210',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Alternate Phone',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 '9876543210',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //         pw.TableRow(
-          //           children: [
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Email',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'johndoe@gmail.com',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'Alternate Email',
-          //                 style: pw.TextStyle(
-          //                     fontSize: 10, fontWeight: pw.FontWeight.bold),
-          //               ),
-          //             ),
-          //             pw.Padding(
-          //               padding: const pw.EdgeInsets.only(
-          //                   right: 5, top: 5, bottom: 5),
-          //               child: pw.Text(
-          //                 'johndoe@gmail.com',
-          //                 style: const pw.TextStyle(fontSize: 10),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     )),
-          // pw.SizedBox(height: 16.0),
           pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 8),
               child: pw.Text(
@@ -943,149 +910,120 @@ class _MyPdfState extends ConsumerState<MyPdf> {
               )),
 
           pw.SizedBox(height: 20.0),
+          if (seaExpLength != 0)
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8),
+              child: pw.Text(
+                'Experience',
+                style: const pw.TextStyle(
+                  color: PdfColor.fromInt(0xff0161a4),
+                ),
+              ),
+            ),
 
-          pw.Column(
-            children: List.generate(seaExperienceData.length as int, (index) {
-              print('sea experience column called');
-              return pw.Padding(
+          if (seaExpLength != 0)
+            pw.Padding(
                 padding: const pw.EdgeInsets.all(4),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                child: pw.Table(
+                  border: const pw.TableBorder(
+                    horizontalInside: pw.BorderSide(color: PdfColors.grey300),
+                    bottom: pw.BorderSide(color: PdfColors.grey300),
+                  ),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(),
+                    1: const pw.FlexColumnWidth(),
+                    2: const pw.FlexColumnWidth(),
+                    3: const pw.FlexColumnWidth(),
+                    4: const pw.FlexColumnWidth(),
+                    5: const pw.FlexColumnWidth(),
+                    6: const pw.FlexColumnWidth(),
+                    7: const pw.FlexColumnWidth(),
+                    8: const pw.FlexColumnWidth(),
+                  },
                   children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(horizontal: 4),
-                      child: pw.Text(
-                        'Experience',
-                        style: const pw.TextStyle(
-                          color: PdfColor.fromInt(0xff0161a4),
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Employer',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 8.0),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 4),
-                      child: pw.Text(
-                        'rank',
-                        style: pw.TextStyle(
-                          fontSize: 10,
-                          fontWeight: pw.FontWeight.bold,
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Rank',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 1.5),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 4),
-                      child: pw.Text(
-                        'MV Ocean Explorer (IMO123456)',
-                        style: const pw.TextStyle(
-                          fontSize: 10,
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Vessel Name',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 1.5),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 4),
-                      child: pw.Text(
-                        'January 2018 - December 2020 (15 months)',
-                        style: const pw.TextStyle(
-                          fontSize: 10,
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'IMO',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 1.5),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 4),
-                      child: pw.Text(
-                        'Oceanic Shipping Ltd. - New Delhi, India',
-                        style: const pw.TextStyle(
-                          fontSize: 10,
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Vessel Type',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 16.0),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(left: 4),
-                      child: pw.Text(
-                        'Oversaw the operation and maintenance of the MV Ocean Explorer, a vessel with DWT of 10,000 tons, GT of 15,000 tons, and an engine output of 5,000 HP. Managed compliance, crew, and preventative maintenance, enhancing operational efficiency.',
-                        style: const pw.TextStyle(
-                          fontSize: 10,
-                          lineSpacing: 1.5,
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Service From',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
                         ),
-                      ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Service To',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              );
-            }),
-          ),
+                )),
 
-          // pw.Padding(
-          //     padding: const pw.EdgeInsets.all(4),
-          //     child: pw.Column(
-          //       crossAxisAlignment: pw.CrossAxisAlignment.start,
-          //       children: [
-          //         pw.Padding(
-          //             padding: const pw.EdgeInsets.symmetric(horizontal: 4),
-          //             child: pw.Text(
-          //               'Experience',
-          //               style: const pw.TextStyle(
-          //                 color: PdfColor.fromInt(0xff0161a4),
-          //               ),
-          //             )),
-          //         pw.SizedBox(height: 8.0),
-          //         pw.Padding(
-          //           padding: const pw.EdgeInsets.only(left: 4),
-          //           child: pw.Text(
-          //             'Chief Engineer',
-          //             style: pw.TextStyle(
-          //               fontSize: 10,
-          //               fontWeight: pw.FontWeight.bold,
-          //             ),
-          //           ),
-          //         ),
-          //         pw.SizedBox(height: 1.5),
-          //         pw.Padding(
-          //           padding: const pw.EdgeInsets.only(left: 4),
-          //           child: pw.Text(
-          //             'MV Ocean Explorer (IMO123456)',
-          //             style: const pw.TextStyle(
-          //               fontSize: 10,
-          //             ),
-          //           ),
-          //         ),
-          //         pw.SizedBox(height: 1.5),
-          //         pw.Padding(
-          //           padding: const pw.EdgeInsets.only(left: 4),
-          //           child: pw.Text(
-          //             'January 2018 - December 2020 (15 months)',
-          //             style: const pw.TextStyle(
-          //               fontSize: 10,
-          //             ),
-          //           ),
-          //         ),
-          //         pw.SizedBox(height: 1.5),
-          //         pw.Padding(
-          //           padding: const pw.EdgeInsets.only(left: 4),
-          //           child: pw.Text(
-          //             'Oceanic Shipping Ltd. - New Delhi, India',
-          //             style: const pw.TextStyle(
-          //               fontSize: 10,
-          //             ),
-          //           ),
-          //         ),
-          //         pw.SizedBox(height: 16.0),
-          //         pw.Padding(
-          //           padding: const pw.EdgeInsets.only(left: 4),
-          //           child: pw.Text(
-          //             'Oversaw the operation and maintenance of the MV Ocean Explorer, a vessel with DWT of 10,000 tons, GT of 15,000 tons, and an engine output of 5,000 HP. Managed compliance, crew, and preventative maintenance, enhancing operational efficiency.',
-          //             style: const pw.TextStyle(
-          //               fontSize: 10,
-          //               lineSpacing: 1.5, // Adjust line height here
-          //             ),
-          //           ),
-          //         ),
-          //       ],
-          //     )),
+          pw.Padding(
+              padding: const pw.EdgeInsets.all(4),
+              child: pw.Table(
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(),
+                  1: const pw.FlexColumnWidth(),
+                  2: const pw.FlexColumnWidth(),
+                  3: const pw.FlexColumnWidth(),
+                  4: const pw.FlexColumnWidth(),
+                  5: const pw.FlexColumnWidth(),
+                  6: const pw.FlexColumnWidth(),
+                  7: const pw.FlexColumnWidth(),
+                  8: const pw.FlexColumnWidth(),
+                },
+                border: const pw.TableBorder(
+                  horizontalInside: pw.BorderSide(color: PdfColors.grey300),
+                  bottom: pw.BorderSide(color: PdfColors.grey300),
+                ),
+                children: tableRows,
+              )),
           pw.SizedBox(height: 20.0),
           pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 8),
