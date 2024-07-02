@@ -39,11 +39,12 @@ class _CVState extends ConsumerState<CV> {
           .get();
 
       // Extract the data from the query snapshot
-      List<Map<String, dynamic>> seaExperienceData = querySnapshot.docs
+      seaExperienceData = querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
 
       // Print the fetched data
+
       print('seaExperience: $seaExperienceData');
       setState(() {
         seaExpLength = seaExperienceData.length;
@@ -63,16 +64,19 @@ class _CVState extends ConsumerState<CV> {
     final response = await http.get(Uri.parse(data['photoUrl'] ?? ''));
     Uint8List? imagedynamic = response.bodyBytes;
     // final Uint8List imagedefault = imageData.buffer.asUint8List();
-    List<pw.TableRow> tableRows = List.generate(1, (index) {
+
+    List<pw.TableRow> tableRows = List.generate(seaExpLength, (index) {
       final doc = seaExperienceData[index];
-      print('doc ${doc}');
-      print('sea experience table called');
+
+
       return pw.TableRow(
         children: [
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              '${doc['rank'] ?? ''}',
+
+              '${doc['employer'] ?? ''}',
+
               style: pw.TextStyle(
                 fontSize: 10,
                 fontWeight: pw.FontWeight.bold,
@@ -91,7 +95,10 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'sf',
+
+              '${doc['rank'] ?? ''}',
+
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -101,6 +108,7 @@ class _CVState extends ConsumerState<CV> {
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
               'grfgb',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -109,7 +117,10 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'grfgb',
+
+              '${doc['vesselName'] ?? ''}',
+
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -118,7 +129,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'grfgb',
+
+              '${doc['imo'] ?? ''}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -127,7 +140,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'grfgb',
+
+              '${doc['vesselType'] ?? ''}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -136,7 +151,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'grfgb',
+
+              '${convertTimestamp(doc['from'] ?? '')}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -145,7 +162,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
-              'grfgb',
+
+              '${convertTimestamp(doc['to'] ?? '')}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -930,113 +949,100 @@ class _CVState extends ConsumerState<CV> {
               )),
 
           pw.SizedBox(height: 20.0),
-          pw.Padding(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 8),
-            child: pw.Text(
-              'Experience',
-              style: const pw.TextStyle(
-                color: PdfColor.fromInt(0xff0161a4),
+          if (seaExpLength != 0)
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8),
+              child: pw.Text(
+                'Experience',
+                style: const pw.TextStyle(
+                  color: PdfColor.fromInt(0xff0161a4),
+                ),
               ),
             ),
-          ),
 
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(4),
-              child: pw.Table(
-                border: const pw.TableBorder(
-                  horizontalInside: pw.BorderSide(color: PdfColors.grey300),
-                  bottom: pw.BorderSide(color: PdfColors.grey300),
-                ),
-                columnWidths: {
-                  0: const pw.FlexColumnWidth(),
-                  1: const pw.FlexColumnWidth(),
-                  2: const pw.FlexColumnWidth(),
-                  3: const pw.FlexColumnWidth(),
-                  4: const pw.FlexColumnWidth(),
-                  5: const pw.FlexColumnWidth(),
-                  6: const pw.FlexColumnWidth(),
-                  7: const pw.FlexColumnWidth(),
-                  8: const pw.FlexColumnWidth(),
-                },
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Employer',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Rank',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Vessel Name',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'IMO',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Vessel Type',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'GRT',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Year built',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Service From',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(4),
-                        child: pw.Text(
-                          'Service To',
-                          style: pw.TextStyle(
-                              fontSize: 10, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-                    ],
+          if (seaExpLength != 0)
+            pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Table(
+                  border: const pw.TableBorder(
+                    horizontalInside: pw.BorderSide(color: PdfColors.grey300),
+                    bottom: pw.BorderSide(color: PdfColors.grey300),
                   ),
-                ],
-              )),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(),
+                    1: const pw.FlexColumnWidth(),
+                    2: const pw.FlexColumnWidth(),
+                    3: const pw.FlexColumnWidth(),
+                    4: const pw.FlexColumnWidth(),
+                    5: const pw.FlexColumnWidth(),
+                    6: const pw.FlexColumnWidth(),
+                    7: const pw.FlexColumnWidth(),
+                    8: const pw.FlexColumnWidth(),
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Employer',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Rank',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Vessel Name',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'IMO',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Vessel Type',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Service From',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'Service To',
+                            style: pw.TextStyle(
+                                fontSize: 10, fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+
 
           pw.Padding(
               padding: const pw.EdgeInsets.all(4),
