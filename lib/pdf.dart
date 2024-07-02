@@ -44,7 +44,8 @@ class _CVState extends ConsumerState<CV> {
           .toList();
 
       // Print the fetched data
-      // print('seaExperience: $seaExperienceData');
+
+      print('seaExperience: $seaExperienceData');
       setState(() {
         seaExpLength = seaExperienceData.length;
         print('length: $seaExpLength');
@@ -63,15 +64,29 @@ class _CVState extends ConsumerState<CV> {
     final response = await http.get(Uri.parse(data['photoUrl'] ?? ''));
     Uint8List? imagedynamic = response.bodyBytes;
     // final Uint8List imagedefault = imageData.buffer.asUint8List();
+
     List<pw.TableRow> tableRows = List.generate(seaExpLength, (index) {
       final doc = seaExperienceData[index];
+
 
       return pw.TableRow(
         children: [
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${doc['employer'] ?? ''}',
+
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+              'seaExperienceData[,',
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -80,7 +95,10 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${doc['rank'] ?? ''}',
+
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -89,7 +107,20 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+              'grfgb',
+
+              style: const pw.TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+          pw.Padding(
+            padding: const pw.EdgeInsets.all(4),
+            child: pw.Text(
+
               '${doc['vesselName'] ?? ''}',
+
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -98,7 +129,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${doc['imo'] ?? ''}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -107,7 +140,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${doc['vesselType'] ?? ''}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -116,7 +151,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${convertTimestamp(doc['from'] ?? '')}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -125,7 +162,9 @@ class _CVState extends ConsumerState<CV> {
           pw.Padding(
             padding: const pw.EdgeInsets.all(4),
             child: pw.Text(
+
               '${convertTimestamp(doc['to'] ?? '')}',
+
               style: const pw.TextStyle(
                 fontSize: 10,
               ),
@@ -1003,6 +1042,7 @@ class _CVState extends ConsumerState<CV> {
                     ),
                   ],
                 )),
+
 
           pw.Padding(
               padding: const pw.EdgeInsets.all(4),
